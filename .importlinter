@@ -1,0 +1,66 @@
+[importlinter]
+root_package = src
+
+[importlinter:contract:1]
+name=Api have to depend only on business logic
+type=forbidden
+source_modules=
+    src.api
+forbidden_modules=
+    src.clients.*
+    src.db.*
+    src.adapters
+ignore_imports =
+    src.bl.bl_manager -> src.adapters.adapters_manager
+
+
+[importlinter:contract:2]
+name=Business logic have to depend only on adapters
+type=forbidden
+source_modules=
+    src.bl
+forbidden_modules=
+    src.clients.*
+    src.db.*
+    src.api
+ignore_imports =
+    src.adapters.adapters_manager -> src.clients.crypto_currency_rates_client
+    src.adapters.schema -> src.db.models
+
+
+[importlinter:contract:3]
+name=Adapters connect business logic with db and clients
+type=forbidden
+source_modules=
+    src.adapters
+forbidden_modules=
+    src.api.http_server
+    src.api.http_routes
+    src.api.jarpc_manager
+    src.api.schema
+    src.api.wrappers
+    src.api.rpc_routes
+
+
+[importlinter:contract:4]
+name=DB does not depend on clients, business logic, api or adapters
+type=forbidden
+source_modules=
+    src.db
+forbidden_modules=
+    src.clients
+    src.adapters
+    src.bl
+    src.api
+
+
+[importlinter:contract:5]
+name=Clients does not depend on db, business logic, api or adapters
+type=forbidden
+source_modules=
+    src.clients
+forbidden_modules=
+    src.db
+    src.adapters
+    src.bl
+    src.api

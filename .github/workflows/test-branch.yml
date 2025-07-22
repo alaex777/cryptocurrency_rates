@@ -1,0 +1,52 @@
+name: Run linters and tests in Docker container
+
+on:
+  push:
+    branches-ignore: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build_test_image:
+    name: Run linters and tests in Docker container
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_PASSWORD: postgres
+
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Build the Docker image
+        run: docker build . --tag ${{ github.event.repository.name }}:0.0 --ssh default
+
+      - name: Run linters in Docker container
+        run:
+          docker run
+          ${{ github.event.repository.name }}:0.0
+          /bin/sh -c 'git init . && git add . && pre-commit run --all-files && lint-imports'
+
+      - name: Run mypy in Docker container
+        run:
+          docker run
+          ${{ github.event.repository.name }}:0.0
+          mypy --config-file mypy.ini -p src
+
+      - name: Run tests in Docker container
+        run:
+          docker run
+          -v /tmp:/tmp
+          -e POSTGRESQL_HOST=postgres
+          -e TEST_POSTGRESQL_DATABASE=postgres
+          -e POSTGRESQL_PASSWORD=postgres
+          -e PYTHONPATH=.
+          -e PYTEST=true
+          --network ${{ job.container.network }}
+          ${{ github.event.repository.name }}:0.0
+          /bin/bash -c 'set -o pipefail && pytest tests/ --junitxml=/tmp/pytest.xml --cov-report term-missing:skip-covered --cov=src/ --cov-config=tests/.coveragerc  | tee /tmp/pytest-coverage.txt'

@@ -1,0 +1,2 @@
+class ServiceNotWorkingError(Exception):
+    pass
