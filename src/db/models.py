@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, Numeric, String
+from sqlalchemy import DateTime, Index, Numeric, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from src.common.enums import Currency
@@ -27,6 +27,10 @@ class CryptoCurrencyRate(Base):
         nullable=False,
         default=utcnow,
         onupdate=utcnow,
+    )
+
+    __table_args__ = (
+        Index('idx_crypto_currency_rate_created_at', 'created_at'),
     )
 
 
