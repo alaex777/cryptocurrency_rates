@@ -10,9 +10,15 @@ class CurrencyRoutes(BaseRoutes):
     def register(self, app: web.Application) -> None:
         app.router.add_get(BASE_PATH + 'crypto-currency/rate', self._get_crypto_currency_rate)
 
+    def _is_supported_currency(self, currency: str) -> bool:
+        return currency in Currency._value2member_map_
+
     @http_api_method_wrapper(GetCryptoCurrencyRateRequest)
     async def _get_crypto_currency_rate(self, request: GetCryptoCurrencyRateRequest) -> web.Response:
-        if request.query.from_currency not in Currency or request.query.to_currency not in Currency:
+        if (
+            not self._is_supported_currency(currency=request.query.from_currency)
+            or not self._is_supported_currency(currency=request.query.to_currency)
+        ):
             return web.json_response(
                 {
                     'result_code': 'unsupported_currency',
