@@ -23,6 +23,11 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
 
+      - name: Prepare Key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Build the Docker image
         run: docker build . --tag ${{ github.event.repository.name }}:0.0 --ssh default
 
