@@ -26,12 +26,12 @@ class CurrencyRoutes(BaseRoutes):
                 status=400,
             )
 
-        currencies_info = await self._bl_manager.currency_bl_manager.get_crypto_currency_rate(
+        rate = await self._bl_manager.currency_bl_manager.get_crypto_currency_rate(
             from_currency=Currency(request.query.from_currency),
             to_currency=Currency(request.query.to_currency),
         )
 
-        if currencies_info is None:
+        if rate is None:
             return web.json_response(
                 {
                     'result_code': 'quotes_outdated',
@@ -42,7 +42,7 @@ class CurrencyRoutes(BaseRoutes):
         return web.json_response(
             {
                 'result_code': 'success',
-                'rate': str(currencies_info),
+                'rate': str(rate),
             },
             status=200,
         )
