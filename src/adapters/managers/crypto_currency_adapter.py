@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from sqlalchemy.ext.asyncio.session import _AsyncSessionContextManager
@@ -58,6 +58,21 @@ class CryptoCurrencyAdapter:
             from_currency=from_currency,
             to_currency=to_currency,
             lifetime=CRYPTO_CURRENCY_RATE_ACTUAL_LIFETIME,
+        )
+        if crypto_currency_rate is None:
+            return None
+        return crypto_currency_rate.price
+
+    async def get_rates_by_timestamp(
+        self,
+        from_currency: Currency,
+        to_currency: Currency,
+        timestamp: datetime,
+    ) -> Decimal | None:
+        crypto_currency_rate = await self._db_manager.crypto_currency_manager.get_crypto_currency_rate_by_timestamp(
+            from_currency=from_currency,
+            to_currency=to_currency,
+            timestamp=timestamp,
         )
         if crypto_currency_rate is None:
             return None

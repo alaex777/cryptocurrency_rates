@@ -5,6 +5,7 @@ from sqlalchemy import delete, desc, select
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
+from src.common.constants import CRYPTO_CURRENCY_RATE_TIMESTAMP_TOLERANCE
 from src.common.enums import Currency
 from src.common.helpers import utcnow
 from src.db.managers.base_manager import OMITTED, BaseDBManager, Omittable
@@ -55,6 +56,28 @@ class CryptoCurrencyDBManager(BaseDBManager):
                     CryptoCurrencyRate.from_currency == from_currency,
                     CryptoCurrencyRate.to_currency == to_currency,
                     CryptoCurrencyRate.created_at >= utcnow() - timedelta(seconds=lifetime),
+                )
+                .order_by(desc(CryptoCurrencyRate.created_at))
+                .limit(1),
+            )
+
+    async def get_crypto_currency_rate_by_timestamp(
+        self,
+        from_currency: Currency,
+        to_currency: Currency,
+        timestamp: datetime,
+        current_session: AsyncSession | None = None,
+    ) -> CryptoCurrencyRate | None:
+        async with self.use_or_create_session(current_session) as session:
+            return await session.scalar(
+                select(CryptoCurrencyRate)
+                .where(
+                    CryptoCurrencyRate.from_currency == from_currency,
+                    CryptoCurrencyRate.to_currency == to_currency,
+                    CryptoCurrencyRate.created_at <= timestamp,
+                    CryptoCurrencyRate.created_at >= timestamp - timedelta(
+                        seconds=CRYPTO_CURRENCY_RATE_TIMESTAMP_TOLERANCE,
+                    ),
                 )
                 .order_by(desc(CryptoCurrencyRate.created_at))
                 .limit(1),

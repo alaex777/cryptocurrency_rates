@@ -3,33 +3,29 @@ from aiohttp import web
 from src.api.http_routes.base_routes import BASE_PATH, BaseRoutes
 from src.api.schema import GetCryptoCurrencyRateRequest
 from src.api.wrappers import http_api_method_wrapper
-from src.common.enums import Currency
+from src.common.exceptions import UnsupportedCurrencyError
 
 
 class CurrencyRoutes(BaseRoutes):
     def register(self, app: web.Application) -> None:
-        app.router.add_get(BASE_PATH + 'crypto-currency/rate', self._get_crypto_currency_rate)
-
-    def _is_supported_currency(self, currency: str) -> bool:
-        return currency in Currency._value2member_map_
+        app.router.add_get(BASE_PATH + 'convert', self._get_crypto_currency_rate)
 
     @http_api_method_wrapper(GetCryptoCurrencyRateRequest)
     async def _get_crypto_currency_rate(self, request: GetCryptoCurrencyRateRequest) -> web.Response:
-        if (
-            not self._is_supported_currency(currency=request.query.from_currency)
-            or not self._is_supported_currency(currency=request.query.to_currency)
-        ):
+        try:
+            rate = await self._bl_manager.currency_bl_manager.get_crypto_currency_rate(
+                from_currency=request.query.from_currency,
+                to_currency=request.query.to_currency,
+                amount=request.query.amount,
+                timestamp=request.query.timestamp,
+            )
+        except UnsupportedCurrencyError:
             return web.json_response(
                 {
                     'result_code': 'unsupported_currency',
                 },
                 status=400,
             )
-
-        rate = await self._bl_manager.currency_bl_manager.get_crypto_currency_rate(
-            from_currency=Currency(request.query.from_currency),
-            to_currency=Currency(request.query.to_currency),
-        )
 
         if rate is None:
             return web.json_response(

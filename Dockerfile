@@ -12,6 +12,6 @@ COPY . .
 EXPOSE 8080
 EXPOSE 4000
 
-HEALTHCHECK --interval=5s --timeout=5s --retries=5 --start-period=5s CMD curl -f 0.0.0.0:4000/ping/cryptocurrency-rates || exit 1
+HEALTHCHECK --interval=5s --timeout=5s --retries=5 --start-period=5s CMD curl -f 0.0.0.0:4000/ping/cryptocurrency_rates || exit 1
 
 CMD ["python", "run.py"]

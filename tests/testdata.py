@@ -6,3 +6,5 @@ ETH_PRICE = Decimal('3000.00')
 USDT_PRICE = Decimal('1.00')
 
 BTC_TO_USDT_RATE = Decimal('50000.00')
+
+AMOUNT = Decimal('1000.00')

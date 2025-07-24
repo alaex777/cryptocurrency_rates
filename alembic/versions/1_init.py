@@ -47,11 +47,7 @@ def upgrade():
         INSERT INTO crypto_currency_task (from_currency, to_currency, next_attempt_at, created_at, updated_at)
         VALUES 
         ('BTC', 'USDT', now(), now(), now()),
-        ('ETH', 'USDT', now(), now(), now()),
-        ('USDT', 'BTC', now(), now(), now()),
-        ('USDT', 'ETH', now(), now(), now()),
-        ('ETH', 'BTC', now(), now(), now()),
-        ('BTC', 'ETH', now(), now(), now());
+        ('ETH', 'USDT', now(), now(), now());
         """,
     )
     # ### end Alembic commands ###

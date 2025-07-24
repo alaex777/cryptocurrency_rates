@@ -1,0 +1,48 @@
+services:
+  postgresql:
+    image: postgres:15-alpine
+    container_name: cryptocurrency_rates_db
+    environment:
+      POSTGRES_DB: cryptocurrency_rates
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cryptocurrency_rates"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crypto_rates_network
+
+  cryptocurrency_rates_service:
+    build: .
+    container_name: cryptocurrency_rates_app
+    environment:
+      POSTGRESQL_HOST: postgresql
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_DATABASE: cryptocurrency_rates
+      POSTGRESQL_USER: postgres
+      POSTGRESQL_PASSWORD: postgres
+      EXTERNAL_PORT: 8080
+      INTERNAL_PORT: 4000
+    ports:
+      - "8080:8080"
+      - "4000:4000"
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - crypto_rates_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/ping/cryptocurrency_rates"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+networks:
+  crypto_rates_network:
+    driver: bridge
