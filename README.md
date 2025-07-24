@@ -24,6 +24,7 @@ A service that fetches real-time cryptocurrency exchange rates from Binance API 
 2. **Test the API**
    ```bash
    curl "http://localhost:8080/api/v1/convert?from=BTC&to=USDT&amount=1000"
+   curl "http://localhost:8080/api/v1/convert?from=BTC&to=USDT&amount=1000&timestamp=2025-07-24+19:10:00"
    ```
 
 ## API Usage
@@ -31,6 +32,7 @@ A service that fetches real-time cryptocurrency exchange rates from Binance API 
 **Convert cryptocurrency:**
 ```bash
 curl "localhost:8080/api/v1/convert?from=BTC&to=USDT&amount=1000"
+curl "localhost:8080/api/v1/convert?from=BTC&to=USDT&amount=1000&timestamp=2025-07-24+19:10:00"
 ```
 
 **Response:**
